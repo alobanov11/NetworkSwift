@@ -94,7 +94,7 @@ ReactSwift supports **iOS 9 and up**, and can be compiled with **Swift 4.2 and u
 The ReactSwift package URL is:
 
 ```
-`https://github.com/alobanov11/ReactSwift`
+`https://github.com/alobanov11/NetworkSwift`
 ```
 
 
