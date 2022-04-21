@@ -36,7 +36,7 @@ public final class NetworkDataProvider: INetworkDataProvider {
         }
 
         return headers
-	}
+    }
 }
 
 ```
@@ -44,27 +44,24 @@ public final class NetworkDataProvider: INetworkDataProvider {
 Then just create a request
 
 ```swift
-public final class GetProfileRequest: Request<ProfileEntity> {
+public final class SomeRequest: Request<SomeEntity> {
     public override var api: RequestAPI {
-        .v1
-    }
-
-    private let id: String
-
-    public init(id: String) {
-        self.id = id
+        .v2
     }
 
     public override func parameters() -> RequestParameters {
         .init(
-            path: "users/\(self.id)/profile",
-            method: .get,
-            contentType: .json // .formURLEncoded // .multipart
+            path: String,
+            method: HTTPMethod,
+            contentType: ContentType, // json / formURLEncoded / multipart([MultipartData])
+            query: [String: Any]?,
+            body: [String: Any]?,
+            headers: [String: String]?
         )
     }
 
-    public override func encode(_ data: Data?) throws -> ProfileEntity {
-        try self.mapFromData(data)
+    public override func encode(_ data: Data?) throws -> SomeEntity {
+        try self.mapSomeEntity(data)
     }
 }
 ```
