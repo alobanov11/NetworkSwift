@@ -101,6 +101,6 @@ The ReactSwift package URL is:
 
 ## License
 
-Lasso is licensed under the [Apache-2.0 Open Source license](http://choosealicense.com/licenses/apache-2.0/).
+NetworkSwift is licensed under the [Apache-2.0 Open Source license](http://choosealicense.com/licenses/apache-2.0/).
 
 You are free to do with it as you please.  We _do_ welcome attribution, and would love to hear from you if you are using it in a project!
