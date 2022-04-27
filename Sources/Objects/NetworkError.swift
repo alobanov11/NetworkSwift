@@ -5,8 +5,6 @@
 import Foundation
 
 public enum NetworkError: Error {
-	case decodingError(Error)
-	case unknownError(Error)
 	case badRequest
 	case unauthorized
 	case forbidden

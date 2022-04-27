@@ -7,8 +7,7 @@ import Foundation
 public enum NetworkLogger {
 	public static var isEnabled = true
 
-	static func log(_ values: [Any?]) {
-		guard self.isEnabled else { return }
+	public static var handler: ([Any?]) -> Void = { values in
 		print(String(repeating: "_", count: 85))
 		for value in values {
 			if let value = value {
@@ -16,5 +15,10 @@ public enum NetworkLogger {
 			}
 		}
 		print(String(repeating: "_", count: 85))
+	}
+
+	static func log(_ values: [Any?]) {
+		guard self.isEnabled else { return }
+		self.handler(values)
 	}
 }
