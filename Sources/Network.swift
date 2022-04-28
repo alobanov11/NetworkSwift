@@ -37,7 +37,7 @@ public final class Network {
 		self.dispatcher = dispatcher
 	}
 
-	func middleware(_ object: INetworkMiddleware) {
+	public func middleware(_ object: INetworkMiddleware) {
 		self.middlewares.append(Weak(object))
 	}
 }
