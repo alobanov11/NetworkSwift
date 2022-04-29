@@ -8,6 +8,7 @@ public enum NetworkLogger {
 	public static var isEnabled = true
 
 	public static var handler: ([Any?]) -> Void = { values in
+		#if DEBUG
 		print(String(repeating: "_", count: 85))
 		for value in values {
 			if let value = value {
@@ -15,6 +16,7 @@ public enum NetworkLogger {
 			}
 		}
 		print(String(repeating: "_", count: 85))
+		#endif
 	}
 
 	static func log(_ values: [Any?]) {
