@@ -4,8 +4,16 @@
 
 import Foundation
 
-public struct RequestTask {
+public final class RequestTask {
 	public let urlSessionDataTask: URLSessionDataTask
+
+	init(urlSessionDataTask: URLSessionDataTask) {
+		self.urlSessionDataTask = urlSessionDataTask
+	}
+
+	deinit {
+		self.cancel()
+	}
 
 	public func cancel() {
 		self.urlSessionDataTask.cancel()
