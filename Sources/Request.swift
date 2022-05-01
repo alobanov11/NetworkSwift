@@ -11,10 +11,6 @@ public final class RequestTask {
 		self.urlSessionDataTask = urlSessionDataTask
 	}
 
-	deinit {
-		self.cancel()
-	}
-
 	public func cancel() {
 		self.urlSessionDataTask.cancel()
 	}
