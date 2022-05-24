@@ -115,8 +115,10 @@ private extension RequestParameters {
 	}
 
 	func bodyFrom(params: [String: Any]?) -> Data {
-		guard let params = params else { return Data() }
-		guard let httpBody = try? JSONSerialization.data(withJSONObject: params, options: []) else {
+		guard let params = params,
+			  JSONSerialization.isValidJSONObject(params),
+			  let httpBody = try? JSONSerialization.data(withJSONObject: params, options: [])
+		else {
 			return Data()
 		}
 		return httpBody
