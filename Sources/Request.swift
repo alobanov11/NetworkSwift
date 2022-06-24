@@ -80,12 +80,12 @@ public struct RequestParameters {
 		request.allHTTPHeaderFields = headers
 
 		switch self.contentType {
-		case let .multipart(data):
+		case let .multipartData(data):
 			request.setValue(
 				"\(self.contentType.value); boundary=\(self.boundary)",
 				forHTTPHeaderField: "Content-Type"
 			)
-			request.httpBody = self.bodyFrom(multipartData: data)
+			request.httpBody = self.bodyFrom(multipartData: data, params: self.body)
 		default:
 			request.setValue("\(self.contentType.value)", forHTTPHeaderField: "Content-Type")
 			request.httpBody = self.bodyFrom(params: self.body)
@@ -125,10 +125,10 @@ private extension RequestParameters {
 	}
 
 	// swiftlint:disable force_unwrapping
-	func bodyFrom(multipartData: [MultipartData]) -> Data {
+	func bodyFrom(multipartData: [MultipartData], params: [String: Any]?) -> Data {
 		var bodyData = Data()
 
-		if let parameters = self.body {
+		if let parameters = params {
 			for (key, value) in parameters {
 				let usedValue: Any = value is NSNull ? "null" : value
 				var body = ""
