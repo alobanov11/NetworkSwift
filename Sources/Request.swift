@@ -17,7 +17,7 @@ public final class RequestTask {
 }
 
 open class Request<ReturnType> {
-	open var api: RequestAPI { .default }
+	open var api: ApiRequest { .default }
 
 	public init() {}
 

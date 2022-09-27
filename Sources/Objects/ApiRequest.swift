@@ -4,12 +4,12 @@
 
 import Foundation
 
-public struct RequestAPI: Hashable {
+public struct ApiRequest: Hashable {
 	public let name: String
 
 	public init(name: String) {
 		self.name = name
 	}
 
-	public static let `default` = RequestAPI(name: "default")
+	public static let `default` = ApiRequest(name: "default")
 }

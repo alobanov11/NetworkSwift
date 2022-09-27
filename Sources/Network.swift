@@ -5,8 +5,8 @@
 import Foundation
 
 public protocol INetworkDataProvider {
-	func baseURL(for api: RequestAPI) -> String?
-	func baseHeaders(for api: RequestAPI) -> [String: String]
+	func baseURL(for api: ApiRequest) -> String?
+	func baseHeaders(for api: ApiRequest) -> [String: String]
 }
 
 public protocol INetworkMiddleware: AnyObject {
