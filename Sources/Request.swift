@@ -34,7 +34,7 @@ open class Request<ReturnType> {
 
 public struct RequestParameters {
 	public var boundary: String {
-		Data(self.path.utf8).base64EncodedString()
+		Data(self.path.utf8).base64EncodedString().replacingOccurrences(of: "=", with: "-")
 	}
 
 	public let path: String
