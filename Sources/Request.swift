@@ -96,20 +96,26 @@ public struct RequestParameters {
 }
 
 private extension RequestParameters {
-	func queryItems(params: [String: Any]?) -> [URLQueryItem] {
+	func queryItems(params: [String: Any]?, nested: Bool = false) -> [URLQueryItem] {
 		params?.compactMap { key, value -> [URLQueryItem]? in
-			if let value = value as? NSNumber {
+			let key = nested ? "[\(key)]" : key
+
+			if let value = value as? Bool {
+				return [URLQueryItem(name: key, value: value.description)]
+			}
+			else if let value = value as? NSNumber {
 				return [URLQueryItem(name: key, value: String(value.stringValue))]
 			}
 			else if let value = value as? NSString {
 				return [URLQueryItem(name: key, value: String(value))]
 			}
 			else if let value = value as? [String: Any] {
-				let items = self.queryItems(params: value)
+				let items = self.queryItems(params: value, nested: true)
 				return items.map {
-					URLQueryItem(name: "\(key)[\($0.name)]", value: $0.value)
+					URLQueryItem(name: "\(key)\($0.name)", value: $0.value)
 				}
 			}
+
 			return nil
 		}.flatMap { $0 } ?? []
 	}
