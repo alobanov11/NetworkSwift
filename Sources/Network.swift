@@ -5,27 +5,16 @@
 import Foundation
 
 public protocol INetworkDataProvider {
-	func baseURL(for api: ApiRequest) -> String?
-	func baseHeaders(for api: ApiRequest) -> [String: String]
-}
-
-public protocol INetworkMiddleware: AnyObject {
-	func process<R>(
-		_ error: Error,
-		_ data: Data?,
-		_ request: Request<R>,
-		_ completion: @escaping (Result<R, Error>) -> Void
-	) -> Bool
+	func baseURL(for api: API) -> String?
+	func baseHeaders(for api: API) -> [String: String]
 }
 
 public protocol INetwork: AnyObject {
 	@discardableResult
-	func dispatch<R>(_ request: Request<R>, completion: @escaping (Result<R, Error>) -> Void) -> RequestTask?
+	func dispatch<R>(_ request: Request<R>, completion: @escaping (Result<R, Error>) -> Void) -> URLSessionDataTask?
 }
 
 public final class Network {
-	private var middlewares: [Weak<INetworkMiddleware>] = []
-
 	private let dataProvider: INetworkDataProvider
 	private let dispatcher: INetworkDispatcher
 
@@ -36,15 +25,11 @@ public final class Network {
 		self.dataProvider = dataProvider
 		self.dispatcher = dispatcher
 	}
-
-	public func middleware(_ object: INetworkMiddleware) {
-		self.middlewares.append(Weak(object))
-	}
 }
 
 extension Network: INetwork {
 	@discardableResult
-	public func dispatch<R>(_ request: Request<R>, completion: @escaping (Result<R, Error>) -> Void) -> RequestTask? {
+	public func dispatch<R>(_ request: Request<R>, completion: @escaping (Result<R, Error>) -> Void) -> URLSessionDataTask? {
 		let baseHeaders = self.dataProvider.baseHeaders(for: request.api)
 		let parameters = request.parameters()
 
@@ -64,15 +49,6 @@ extension Network: INetwork {
 		])
 
 		return self.dispatcher.dispatch(urlRequest) { data, error in
-			if let error = error {
-				for middleware in self.middlewares {
-					if middleware.element?.process(error, data, request, completion) == true {
-						return
-					}
-				}
-				completion(.failure(error))
-				return
-			}
 			do {
 				completion(.success(try request.encode(data)))
 			}

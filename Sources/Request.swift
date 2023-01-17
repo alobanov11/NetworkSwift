@@ -4,20 +4,8 @@
 
 import Foundation
 
-public final class RequestTask {
-	public let urlSessionDataTask: URLSessionDataTask
-
-	init(urlSessionDataTask: URLSessionDataTask) {
-		self.urlSessionDataTask = urlSessionDataTask
-	}
-
-	public func cancel() {
-		self.urlSessionDataTask.cancel()
-	}
-}
-
 open class Request<ReturnType> {
-	open var api: ApiRequest { .default }
+	open var api: API { .default }
 
 	public init() {}
 

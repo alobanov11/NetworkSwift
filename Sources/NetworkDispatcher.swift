@@ -5,11 +5,8 @@
 import Foundation
 
 public protocol INetworkDispatcher: AnyObject {
-	/// Dispatches an URLRequest and returns a publisher
-	/// - Parameter request: URLRequest
-	/// - Returns: A publisher with the provided decoded data or an error
 	@discardableResult
-	func dispatch(_ urlRequest: URLRequest, completion: @escaping (Data?, Error?) -> Void) -> RequestTask
+	func dispatch(_ urlRequest: URLRequest, completion: @escaping (Data?, Error?) -> Void) -> URLSessionDataTask
 }
 
 public final class NetworkDispatcher {
@@ -22,10 +19,7 @@ public final class NetworkDispatcher {
 
 extension NetworkDispatcher: INetworkDispatcher {
 	@discardableResult
-	public func dispatch(
-		_ urlRequest: URLRequest,
-		completion: @escaping (Data?, Error?) -> Void
-	) -> RequestTask {
+	public func dispatch(_ urlRequest: URLRequest, completion: @escaping (Data?, Error?) -> Void) -> URLSessionDataTask {
 		let sessionTask = self.urlSession.dataTask(with: urlRequest) { data, response, error in
 			NetworkLogger.log([
 				"Finish request: \(urlRequest.url?.absoluteString ?? "#")",
@@ -48,6 +42,6 @@ extension NetworkDispatcher: INetworkDispatcher {
 			completion(data, nil)
 		}
 		sessionTask.resume()
-		return .init(urlSessionDataTask: sessionTask)
+		return sessionTask
 	}
 }
