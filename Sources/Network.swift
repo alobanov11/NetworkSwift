@@ -11,7 +11,7 @@ public protocol INetworkDataProvider {
 
 public protocol INetwork: AnyObject {
 	@discardableResult
-	func dispatch<R>(_ request: Request<R>, completion: @escaping (Result<R, Error>) -> Void) -> URLSessionDataTask?
+	func dispatch<R>(_ request: Request<R>, completion: @escaping (NetworkResult<R>) -> Void) -> URLSessionDataTask?
 }
 
 public final class Network {
@@ -29,14 +29,14 @@ public final class Network {
 
 extension Network: INetwork {
 	@discardableResult
-	public func dispatch<R>(_ request: Request<R>, completion: @escaping (Result<R, Error>) -> Void) -> URLSessionDataTask? {
+	public func dispatch<R>(_ request: Request<R>, completion: @escaping (NetworkResult<R>) -> Void) -> URLSessionDataTask? {
 		let baseHeaders = self.dataProvider.baseHeaders(for: request.api)
 		let parameters = request.parameters()
 
 		guard let baseURL = self.dataProvider.baseURL(for: request.api),
 			  let urlRequest = parameters.urlRequest(baseURL: baseURL, baseHeaders: baseHeaders)
 		else {
-			completion(.failure(NetworkError.invalidRequest))
+			completion(.failure(nil, NetworkError.invalidRequest))
 			return nil
 		}
 
@@ -49,11 +49,14 @@ extension Network: INetwork {
 		])
 
 		return self.dispatcher.dispatch(urlRequest) { data, error in
+			if let error {
+				return completion(.failure(data, error))
+			}
 			do {
 				completion(.success(try request.encode(data)))
 			}
 			catch {
-				completion(.failure(error))
+				completion(.failure(data, error))
 			}
 		}
 	}
