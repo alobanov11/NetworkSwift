@@ -14,6 +14,7 @@ public enum NetworkError: Error, Equatable {
 	case error5xx(_ code: Int)
 	case invalidRequest
 	case emptyData
+	case transportError(_ code: Int)
 }
 
 public extension NetworkError {

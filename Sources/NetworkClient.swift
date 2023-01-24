@@ -42,12 +42,12 @@ extension NetworkClient: INetworkClient {
 				request.method.rawValue,
 			])
 
-			return self.session.perform(urlRequest) { data, error in
+			return self.session.perform(urlRequest) { data, _, error in
 				if let error {
 					return completion(.failure(data, error))
 				}
 				do {
-					completion(.success(try request.decode(try data.orThrow(NetworkError.emptyData))))
+					completion(.success(try request.decode(data)))
 				}
 				catch {
 					completion(.failure(data, error))

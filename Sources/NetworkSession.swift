@@ -6,7 +6,10 @@ import Foundation
 
 public protocol INetworkSession: AnyObject {
 	@discardableResult
-	func perform(_ urlRequest: URLRequest, completion: @escaping (Data?, Error?) -> Void) -> Cancellable
+	func perform(
+		_ urlRequest: URLRequest,
+		completion: @escaping (Data?, URLResponse?, Error?) -> Void
+	) -> Cancellable
 }
 
 public protocol Cancellable {
@@ -39,7 +42,10 @@ public final class NetworkSession {
 
 extension NetworkSession: INetworkSession {
 	@discardableResult
-	public func perform(_ urlRequest: URLRequest, completion: @escaping (Data?, Error?) -> Void) -> Cancellable {
+	public func perform(
+		_ urlRequest: URLRequest,
+		completion: @escaping (Data?, URLResponse?, Error?) -> Void
+	) -> Cancellable {
 		let dataTask = self.urlSession.dataTask(with: urlRequest) { data, response, error in
 			NetworkLogger.log([
 				"Finish request: \(urlRequest.url?.absoluteString ?? "#")",
@@ -50,16 +56,16 @@ extension NetworkSession: INetworkSession {
 			])
 
 			if let error {
-				completion(data, error)
+				completion(data, response, NetworkError.transportError((error as NSError).code))
 				return
 			}
 
 			if let response = response as? HTTPURLResponse, (200 ... 299).contains(response.statusCode) == false {
-				completion(data, NetworkError(code: response.statusCode))
+				completion(data, response, NetworkError(code: response.statusCode))
 				return
 			}
 
-			completion(data, nil)
+			completion(data, response, nil)
 		}
 		dataTask.resume()
 		return NetworkDataTask(dataTask)

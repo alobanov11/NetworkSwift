@@ -23,7 +23,7 @@ public extension AnyNetworkRequest {
 public protocol INetworkRequest: AnyNetworkRequest {
 	associatedtype Model
 
-	func decode(_ data: Data) throws -> Model
+	func decode(_ data: Data?) throws -> Model
 }
 
 public extension INetworkRequest {
@@ -36,5 +36,5 @@ public extension INetworkRequest {
 }
 
 public extension INetworkRequest where Model == Void {
-	func decode(_: Data?) throws { () }
+	func decode(_ data: Data?) throws { () }
 }

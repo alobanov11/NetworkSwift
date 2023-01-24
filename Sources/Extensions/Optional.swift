@@ -12,8 +12,4 @@ extension Optional {
 
 		return self
 	}
-
-	func or(_ defaultValue: @autoclosure () -> Wrapped) -> Wrapped {
-		self ?? defaultValue()
-	}
 }
