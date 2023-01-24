@@ -7,7 +7,9 @@ import Foundation
 public typealias HTTPParameters = [String: Any]
 public typealias HTTPHeaders = [String: String]
 
-public protocol AnyNetworkRequest {
+public protocol INetworkRequest {
+	associatedtype Model
+
 	var api: API { get }
 	var path: String { get }
 	var method: HTTPMethod { get }
@@ -15,16 +17,6 @@ public protocol AnyNetworkRequest {
 	var query: HTTPParameters { get }
 	var body: HTTPParameters { get }
 	var headers: HTTPHeaders { get }
-}
-
-public extension AnyNetworkRequest {
-	var boundary: String {
-		Data(self.path.utf8).base64EncodedString().replacingOccurrences(of: "=", with: "-")
-	}
-}
-
-public protocol INetworkRequest: AnyNetworkRequest {
-	associatedtype Model
 
 	func decode(_ data: Data?) throws -> Model
 }
@@ -40,4 +32,22 @@ public extension INetworkRequest {
 
 public extension INetworkRequest where Model == Void {
 	func decode(_ data: Data?) throws { () }
+}
+
+public struct AnyNetworkRequest {
+	public var boundary: String {
+		Data(self.path.utf8).base64EncodedString().replacingOccurrences(of: "=", with: "-")
+	}
+
+	public var absoluteString: String {
+		"\(self.baseURL.absoluteString)\(self.path)"
+	}
+
+	public let baseURL: URL
+	public let path: String
+	public let method: HTTPMethod
+	public let contentType: ContentType
+	public let query: HTTPParameters
+	public let body: HTTPParameters
+	public let headers: HTTPHeaders
 }

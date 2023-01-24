@@ -4,42 +4,24 @@
 
 import Foundation
 
-public protocol INetworkDataProvider {
-	func baseURL(for api: API) -> String?
-	func baseHeaders(for api: API) -> HTTPHeaders
+public protocol IURLRequestBuilder: AnyObject {
+	func build(_ request: AnyNetworkRequest) throws -> URLRequest
 }
 
-final class URLRequestBuilder {
-	private let dataProvider: INetworkDataProvider
+public final class URLRequestBuilder: IURLRequestBuilder {
+	public init() {}
 
-	init(dataProvider: INetworkDataProvider) {
-		self.dataProvider = dataProvider
-	}
-
-	func build(with request: AnyNetworkRequest) throws -> URLRequest {
-		let baseHeaders = self.dataProvider.baseHeaders(for: request.api)
-
-		guard let baseURL = self.dataProvider.baseURL(for: request.api) else {
-			throw NSError()
-		}
-
-		guard var urlComponents = URLComponents(string: baseURL) else {
-			throw NSError()
-		}
-
-		urlComponents.path = "\(urlComponents.path)\(request.path)"
-
+	public func build(_ request: AnyNetworkRequest) throws -> URLRequest {
+		var urlComponents = URLComponents()
+		urlComponents.path = request.absoluteString
 		urlComponents.queryItems = self.queryItems(with: request.query)
 
-		guard let finalURL = urlComponents.url else {
-			throw NSError()
-		}
+		let finalURL = try urlComponents.url.orThrow(NSError())
 
 		var urlRequest = URLRequest(url: finalURL)
 		urlRequest.httpMethod = request.method.rawValue
 
 		request.headers.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
-		baseHeaders.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
 		urlRequest.setValue("\(request.contentType.value)", forHTTPHeaderField: "Content-Type")
 
 		if request.method.isAllowedToContainBody {

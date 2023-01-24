@@ -4,6 +4,10 @@
 
 import Foundation
 
+public protocol INetworkAdapter: AnyObject {
+	func adapt<Request: INetworkRequest>(_ request: Request) -> AnyNetworkRequest
+}
+
 public protocol INetworkClient: AnyObject {
 	@discardableResult
 	func perform<Request: INetworkRequest>(
@@ -13,15 +17,18 @@ public protocol INetworkClient: AnyObject {
 }
 
 public final class NetworkClient {
-	private let requestBuilder: URLRequestBuilder
+	private let adapter: INetworkAdapter
 	private let session: INetworkSession
+	private let requestBuilder: IURLRequestBuilder
 
 	public init(
-		dataProvider: INetworkDataProvider,
-		session: INetworkSession
+		adapter: INetworkAdapter,
+		session: INetworkSession,
+		requestBuilder: IURLRequestBuilder = URLRequestBuilder()
 	) {
-		self.requestBuilder = .init(dataProvider: dataProvider)
+		self.adapter = adapter
 		self.session = session
+		self.requestBuilder = requestBuilder
 	}
 }
 
@@ -32,14 +39,15 @@ extension NetworkClient: INetworkClient {
 		completion: @escaping (NetworkResult<Request.Model>) -> Void
 	) -> Cancellable {
 		do {
-			let urlRequest = try self.requestBuilder.build(with: request)
+			let anyRequest = self.adapter.adapt(request)
+			let urlRequest = try self.requestBuilder.build(anyRequest)
 
 			NetworkLogger.log([
-				"Call request: \(request.path)",
-				urlRequest.allHTTPHeaderFields,
-				request.body,
-				request.contentType.value,
-				request.method.rawValue,
+				"Call request: \(anyRequest.absoluteString)",
+				anyRequest.headers,
+				anyRequest.body,
+				anyRequest.contentType.value,
+				anyRequest.method.rawValue,
 			])
 
 			return self.session.perform(urlRequest) { data, _, error in
