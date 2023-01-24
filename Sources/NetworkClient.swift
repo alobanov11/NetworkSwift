@@ -5,7 +5,7 @@
 import Foundation
 
 public protocol INetworkAdapter: AnyObject {
-	func adapt<Request: INetworkRequest>(_ request: Request) -> AnyNetworkRequest
+	func adapt<Request: INetworkRequest>(_ request: Request) throws -> AnyNetworkRequest
 }
 
 public protocol INetworkClient: AnyObject {
@@ -39,7 +39,7 @@ extension NetworkClient: INetworkClient {
 		completion: @escaping (NetworkResult<Request.Model>) -> Void
 	) -> Cancellable {
 		do {
-			let anyRequest = self.adapter.adapt(request)
+			let anyRequest = try self.adapter.adapt(request)
 			let urlRequest = try self.requestBuilder.build(anyRequest)
 
 			NetworkLogger.log([
