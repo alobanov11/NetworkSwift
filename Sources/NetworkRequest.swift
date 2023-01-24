@@ -4,14 +4,17 @@
 
 import Foundation
 
+public typealias HTTPParameters = [String: Any]
+public typealias HTTPHeaders = [String: String]
+
 public protocol AnyNetworkRequest {
 	var api: API { get }
 	var path: String { get }
 	var method: HTTPMethod { get }
 	var contentType: ContentType { get }
-	var query: [String: Any]? { get }
-	var body: [String: Any]? { get }
-	var headers: [String: String]? { get }
+	var query: HTTPParameters { get }
+	var body: HTTPParameters { get }
+	var headers: HTTPHeaders { get }
 }
 
 public extension AnyNetworkRequest {
@@ -30,9 +33,9 @@ public extension INetworkRequest {
 	var api: API { .default }
 	var method: HTTPMethod { .get }
 	var contentType: ContentType { .json }
-	var query: [String: Any]? { nil }
-	var body: [String: Any]? { nil }
-	var headers: [String: String]? { nil }
+	var query: HTTPParameters { [:] }
+	var body: HTTPParameters { [:] }
+	var headers: HTTPHeaders { [:] }
 }
 
 public extension INetworkRequest where Model == Void {

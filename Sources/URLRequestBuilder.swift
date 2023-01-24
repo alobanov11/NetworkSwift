@@ -6,7 +6,7 @@ import Foundation
 
 public protocol INetworkDataProvider {
 	func baseURL(for api: API) -> String?
-	func baseHeaders(for api: API) -> [String: String]
+	func baseHeaders(for api: API) -> HTTPHeaders
 }
 
 final class URLRequestBuilder {
@@ -29,9 +29,7 @@ final class URLRequestBuilder {
 
 		urlComponents.path = "\(urlComponents.path)\(request.path)"
 
-		if let query = request.query {
-			urlComponents.queryItems = self.queryItems(with: query)
-		}
+		urlComponents.queryItems = self.queryItems(with: request.query)
 
 		guard let finalURL = urlComponents.url else {
 			throw NSError()
@@ -40,7 +38,7 @@ final class URLRequestBuilder {
 		var urlRequest = URLRequest(url: finalURL)
 		urlRequest.httpMethod = request.method.rawValue
 
-		request.headers?.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
+		request.headers.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
 		baseHeaders.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
 		urlRequest.setValue("\(request.contentType.value)", forHTTPHeaderField: "Content-Type")
 
@@ -53,10 +51,10 @@ final class URLRequestBuilder {
 				)
 				urlRequest.httpBody = self.encodeMultipart(with: data, boundary: request.boundary, params: request.body)
 			case .formURLEncoded:
-				urlRequest.httpBody = try self.encodeURLForm(with: try request.body.orThrow(NSError()))
+				urlRequest.httpBody = try self.encodeURLForm(with: request.body)
 			default:
 				urlRequest.httpBody = try JSONSerialization.data(
-					withJSONObject: try request.body.orThrow(NSError()),
+					withJSONObject: request.body,
 					options: []
 				)
 			}
