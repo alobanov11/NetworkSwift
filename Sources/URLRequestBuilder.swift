@@ -12,8 +12,7 @@ public final class URLRequestBuilder: IURLRequestBuilder {
 	public init() {}
 
 	public func build(_ request: AnyNetworkRequest) throws -> URLRequest {
-		var urlComponents = URLComponents()
-		urlComponents.path = request.absoluteString
+		var urlComponents = try URLComponents(string: request.absoluteString).orThrow(NSError())
 		urlComponents.queryItems = self.queryItems(with: request.query)
 
 		let finalURL = try urlComponents.url.orThrow(NSError())
