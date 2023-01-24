@@ -28,6 +28,20 @@ public extension INetworkRequest {
 	var query: HTTPParameters { [:] }
 	var body: HTTPParameters { [:] }
 	var headers: HTTPHeaders { [:] }
+
+	func asAnyRequest(baseURL: URL, baseHeaders: HTTPHeaders) -> AnyNetworkRequest {
+		var headers = self.headers
+		baseHeaders.forEach { headers[$0.key] = $0.value }
+		return .init(
+			baseURL: baseURL,
+			path: self.path,
+			method: self.method,
+			contentType: self.contentType,
+			query: self.query,
+			body: self.body,
+			headers: headers
+		)
+	}
 }
 
 public extension INetworkRequest where Model == Void {
