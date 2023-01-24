@@ -8,13 +8,12 @@ public enum ContentType {
 	case json
 	case formURLEncoded
 	case multipartData([MultipartData])
-	case multipart
 
 	var value: String {
 		switch self {
-		case .json: return "application/json; charset=utf-8"
+		case .json: return "application/json"
 		case .formURLEncoded: return "application/x-www-form-urlencoded"
-		case .multipartData, .multipart: return "multipart/form-data"
+		case .multipartData: return "multipart/form-data"
 		}
 	}
 }

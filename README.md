@@ -70,7 +70,7 @@ And dispatch the request
 
 ```swift
 
-let dispatcher = NetworkDispatcher(urlSession:)
+let dispatcher = NetworkSession(urlSession:)
 let dataProvider = NetworkDataProvider()
 let network = Network(dataProvider:dispatcher:)
 

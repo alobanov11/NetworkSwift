@@ -4,7 +4,7 @@
 
 import Foundation
 
-public enum NetworkResult<R> {
-	case success(R)
+public enum NetworkResult<Payload> {
+	case success(Payload)
 	case failure(Data?, Error)
 }
