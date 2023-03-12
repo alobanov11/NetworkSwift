@@ -6,7 +6,7 @@ import Foundation
 
 public protocol IURLProvider: AnyObject {
 	func baseURL(for endpoint: Endpoint) -> URL
-	func baseHeaders(for endpoint: Endpoint) -> URL
+	func baseHeaders(for endpoint: Endpoint) -> HTTPHeaders
 }
 
 public protocol IURLRequestBuilder: AnyObject {
@@ -34,6 +34,7 @@ public final class URLRequestBuilder: IURLRequestBuilder {
 		urlRequest.httpMethod = request.method.rawValue
 
 		request.headers.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
+		self.urlProvider.baseHeaders(for: request.endpoint).forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
 		urlRequest.setValue("\(request.contentType.value)", forHTTPHeaderField: "Content-Type")
 
 		if request.method.isAllowedToContainBody {
