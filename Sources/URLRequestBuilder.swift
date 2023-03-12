@@ -5,8 +5,8 @@
 import Foundation
 
 public protocol IURLProvider: AnyObject {
-	func baseURL(for endpoint: Endpoint) -> URL
-	func baseHeaders(for endpoint: Endpoint) -> HTTPHeaders
+	func baseURL(for endpoint: Endpoint) throws -> URL
+	func baseHeaders(for endpoint: Endpoint) throws -> HTTPHeaders
 }
 
 public protocol IURLRequestBuilder: AnyObject {
@@ -22,7 +22,7 @@ public final class URLRequestBuilder: IURLRequestBuilder {
 
 	public func build(_ request: some INetworkRequest) throws -> URLRequest {
 		let boundary = Data(request.path.utf8).base64EncodedString().replacingOccurrences(of: "=", with: "-")
-		let baseURL = self.urlProvider.baseURL(for: request.endpoint)
+		let baseURL = try self.urlProvider.baseURL(for: request.endpoint)
 		let urlString = "\(baseURL.absoluteString)\(request.path)"
 
 		var urlComponents = try URLComponents(string: urlString).orThrow(NSError())
@@ -34,7 +34,7 @@ public final class URLRequestBuilder: IURLRequestBuilder {
 		urlRequest.httpMethod = request.method.rawValue
 
 		request.headers.forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
-		self.urlProvider.baseHeaders(for: request.endpoint).forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
+		try self.urlProvider.baseHeaders(for: request.endpoint).forEach { urlRequest.setValue($0.value, forHTTPHeaderField: $0.key) }
 		urlRequest.setValue("\(request.contentType.value)", forHTTPHeaderField: "Content-Type")
 
 		if request.method.isAllowedToContainBody {
