@@ -4,15 +4,28 @@
 
 import Foundation
 
+public protocol IURLProvider: AnyObject {
+	func baseURL(for endpoint: Endpoint) -> URL
+	func baseHeaders(for endpoint: Endpoint) -> URL
+}
+
 public protocol IURLRequestBuilder: AnyObject {
-	func build(_ request: AnyNetworkRequest) throws -> URLRequest
+	func build(_ request: some INetworkRequest) throws -> URLRequest
 }
 
 public final class URLRequestBuilder: IURLRequestBuilder {
-	public init() {}
+	private let urlProvider: IURLProvider
 
-	public func build(_ request: AnyNetworkRequest) throws -> URLRequest {
-		var urlComponents = try URLComponents(string: request.absoluteString).orThrow(NSError())
+	public init(urlProvider: IURLProvider) {
+		self.urlProvider = urlProvider
+	}
+
+	public func build(_ request: some INetworkRequest) throws -> URLRequest {
+		let boundary = Data(request.path.utf8).base64EncodedString().replacingOccurrences(of: "=", with: "-")
+		let baseURL = self.urlProvider.baseURL(for: request.endpoint)
+		let urlString = "\(baseURL.absoluteString)\(request.path)"
+
+		var urlComponents = try URLComponents(string: urlString).orThrow(NSError())
 		urlComponents.queryItems = self.queryItems(with: request.query)
 
 		let finalURL = try urlComponents.url.orThrow(NSError())
@@ -27,10 +40,10 @@ public final class URLRequestBuilder: IURLRequestBuilder {
 			switch request.contentType {
 			case let .multipartData(data):
 				urlRequest.setValue(
-					"\(request.contentType.value); boundary=\(request.boundary)",
+					"\(request.contentType.value); boundary=\(boundary)",
 					forHTTPHeaderField: "Content-Type"
 				)
-				urlRequest.httpBody = self.encodeMultipart(with: data, boundary: request.boundary, params: request.body)
+				urlRequest.httpBody = self.encodeMultipart(with: data, boundary: boundary, params: request.body)
 			case .formURLEncoded:
 				urlRequest.httpBody = try self.encodeURLForm(with: request.body)
 			default:
