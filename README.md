@@ -15,12 +15,12 @@
 
 ## How to use
 
-First of all, you need to create an object conforms to `INetworkDataProvider` protocol. It provides baseURL & baseHeaders which could be different & depended on RequestApi (e.g. .v1, .v2, .staging etc.)
+First of all, you need to create an object conforms to `IURLProvider` protocol. It provides baseURL & baseHeaders which could be different & depended on Endpoint (e.g. .v1, .v2, .staging etc.)
 
 ```swift
-public final class NetworkDataProvider: INetworkDataProvider {
-    public func baseURL(for api: RequestAPI) -> String? {
-        switch api {
+public final class URLProvider: IURLProvider {
+    public func baseURL(for endpoint: Endpoint) throws -> URL {
+        switch endpoint {
         case .v2:
             return Urls.productionV2
         default:
@@ -28,14 +28,8 @@ public final class NetworkDataProvider: INetworkDataProvider {
         }
     }
 
-    public func baseHeaders(for _: RequestAPI) -> [String: String] {
-        var headers = [String: String]()
-
-        if let accessToken {
-            headers["Authorization"] = "Bearer \(accessToken)"
-        }
-
-        return headers
+    public func baseHeaders(for endpoint: Endpoint) throws -> HTTPHeaders {
+        [:]
     }
 }
 
@@ -44,24 +38,20 @@ public final class NetworkDataProvider: INetworkDataProvider {
 Then just create a request
 
 ```swift
-public final class SomeRequest: Request<SomeEntity> {
-    public override var api: RequestAPI {
-        .v2
+public struct SomeRequest: INetworkRequest {
+    public let path = "some/request"
+    public let method: HTTPMethod = .get
+    public let body: HTTPParameters
+
+    init(token: String, refreshToken: String) {
+        self.body = [
+            "accessToken": token,
+            "refreshToken": refreshToken,
+        ]
     }
 
-    public override func parameters() -> RequestParameters {
-        .init(
-            path: String,
-            method: HTTPMethod,
-            contentType: ContentType, // json / formURLEncoded / multipart([MultipartData])
-            query: [String: Any]?,
-            body: [String: Any]?,
-            headers: [String: String]?
-        )
-    }
-
-    public override func encode(_ data: Data?) throws -> SomeEntity {
-        try self.mapSomeEntity(data)
+    public func decode(_ data: Data?) throws -> SomeEntity {
+        try self.mapEntity(data)
     }
 }
 ```
@@ -70,11 +60,9 @@ And dispatch the request
 
 ```swift
 
-let dispatcher = NetworkSession(urlSession:)
-let dataProvider = NetworkDataProvider()
-let network = Network(dataProvider:dispatcher:)
+let network = NetworkClient(session:, requestBuilder:)
 
-let task = network.dispatch(GetProfileRequest(id:)) { result in
+let task = network.dispatch(SomeRequest(:)) { result in
     /// Swift.Result
 }
 
