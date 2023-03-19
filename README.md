@@ -17,25 +17,7 @@
 
 First of all, you need to create an object conforms to `IURLProvider` protocol. It provides baseURL & baseHeaders which could be different & depended on Endpoint (e.g. .v1, .v2, .staging etc.)
 
-```swift
-public final class URLProvider: IURLProvider {
-    public func baseURL(for endpoint: Endpoint) throws -> URL {
-        switch endpoint {
-        case .v2:
-            return Urls.productionV2
-        default:
-            return Urls.productionV1
-        }
-    }
-
-    public func baseHeaders(for endpoint: Endpoint) throws -> HTTPHeaders {
-        [:]
-    }
-}
-
-```
-
-Then just create a request
+Create a request:
 
 ```swift
 public struct SomeRequest: INetworkRequest {
@@ -56,7 +38,7 @@ public struct SomeRequest: INetworkRequest {
 }
 ```
 
-And dispatch the request
+And then dispatch the request
 
 ```swift
 
