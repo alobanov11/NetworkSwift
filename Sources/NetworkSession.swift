@@ -8,7 +8,7 @@ public protocol INetworkSession: AnyObject {
 	@discardableResult
 	func perform(
 		_ urlRequest: URLRequest,
-		completion: @escaping (Data?, URLResponse?, Error?) -> Void
+		completion: @escaping (Data?, URLResponse?, NetworkError?) -> Void
 	) -> Cancellable
 }
 

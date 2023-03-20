@@ -6,5 +6,5 @@ import Foundation
 
 public enum NetworkResult<Model> {
 	case success(Model)
-	case failure(Data?, NetworkError)
+	case failure(Data?, Error)
 }
