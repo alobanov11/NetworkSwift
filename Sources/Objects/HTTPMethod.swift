@@ -12,6 +12,6 @@ public enum HTTPMethod: String {
 
 extension HTTPMethod {
 	var isAllowedToContainBody: Bool {
-		self == .post
+		[HTTPMethod.post, .put, .patch].contains(self)
 	}
 }

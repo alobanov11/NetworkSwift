@@ -44,7 +44,7 @@ extension NetworkSession: INetworkSession {
 	@discardableResult
 	public func perform(
 		_ urlRequest: URLRequest,
-		completion: @escaping (Data?, URLResponse?, Error?) -> Void
+		completion: @escaping (Data?, URLResponse?, NetworkError?) -> Void
 	) -> Cancellable {
 		let dataTask = self.urlSession.dataTask(with: urlRequest) { data, response, error in
 			NetworkLogger.log([
