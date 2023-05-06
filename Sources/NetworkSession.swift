@@ -47,7 +47,7 @@ extension NetworkSession: INetworkSession {
 		completion: @escaping (Data?, URLResponse?, NetworkError?) -> Void
 	) -> Cancellable {
 		let dataTask = self.urlSession.dataTask(with: urlRequest) { data, response, error in
-			NetworkLogger.log([
+            LogHandler?([
 				"Finish request: \(urlRequest.url?.absoluteString ?? "#")",
 				"Code - \((response as? HTTPURLResponse)?.statusCode ?? 0)",
 				"Error - \(String(describing: error))",

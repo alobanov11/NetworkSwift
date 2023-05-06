@@ -34,7 +34,7 @@ extension NetworkClient: INetworkClient {
 		do {
 			let urlRequest = try self.requestBuilder.build(request)
 
-			NetworkLogger.log([
+            LogHandler?([
 				"Call request: \(urlRequest.url?.absoluteString ?? "-")",
 				urlRequest.allHTTPHeaderFields,
 				request.body,
